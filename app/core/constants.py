@@ -23,7 +23,7 @@ class Constants:
         "fam_chef_mulher": "Familia chefiada por mulher",
         "fam_com_deficiencia": "Familia com deficiente, doente cronico, idoso",
         "nampula": "Nampula",
-        "cabo_delgado": "Cadbo Delgado",
+        "cabo_delgado": "Cabo Delgado",
         "nacoroa": "Nacoroa",
         "nampula": "Nampula",
         "meconta": "Meconta",

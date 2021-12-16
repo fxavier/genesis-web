@@ -35,9 +35,6 @@
                     <td>{{ object.numero_questionario }}</td>
                     <td>{{ object.local_entrevista }}</td>
                     <td>
-                        <!-- <a href="{% url 'core:inquerito_detail' object.pk %}">
-                            <i class="fas fa-search-plus"></i>
-                        </a> -->
                     </td>
                 </tr>
                 {% endfor %}
@@ -56,7 +53,7 @@
 <!-- Page level plugins -->
 <script src="{% static 'vendor/datatables/jquery.dataTables.min.js' %}"></script>
 <script src="{% static 'vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
-
+<!-- 
 <script>
     $(document).ready(function () {
         $('#list-table').DataTable(
@@ -78,5 +75,5 @@
                 }
             );
         })
-</script>
+</script> -->
 {% endblock %}

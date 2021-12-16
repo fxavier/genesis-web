@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from datetime import date
 import gspread
 
-from django.views.generic.list import ListView
+from django.views.generic import ListView
 
 from core.models import Inquerito, TipoSementeGerminou, TipoAreaGerminacao, VerificacaoSementes
 from core.helpers import Helpers
@@ -11,11 +11,6 @@ from core.helpers import Helpers
 from core.constants import Constants
 
 service_account = gspread.service_account(filename="credentials.json")
-# sh = service_account.open("Inquerito_resultados")
-
-# def get_data_from_spreadsheet(worksheet:str):
-#      wks = sh.worksheet(worksheet)
-#      return wks.get_all_records()
 
 
 def get_data_from_spreadsheet(worksheet: str, sheet: str):
@@ -343,7 +338,26 @@ def home(request):
     return HttpResponse(get_data_from_spreadsheet("Inquerito_resultados", "Folha1"))
 
 
-class InqueritoListView(ListView):
+class IndexView(ListView):
+    template_name = "core/index.html"
+    context_object_name = "Inquerito_list"
     model = Inquerito
+
+    def get_context_data(self, **kwargs):
+        context = super(IndexView, self).get_context_data(**kwargs)
+        context['inquerito'] = Inquerito.objects.all().count()
+        context['inquerito_nampula'] = Inquerito.objects.filter(
+            provincia="Nampula").count()
+        context['inquerito_cabo_delgado'] = Inquerito.objects.filter(
+            provincia="Cabo Delgado").count()
+
+        return context
+
+    def get_queryset(self):
+        return Inquerito.objects.all()
+
+
+class InqueritoListView(ListView):
+    template_name = "core/inqueritos_list.html"
+    queryset = Inquerito.objects.all()
     paginate_by = 10
-    template_name = 'core/inqueritos_list.html'

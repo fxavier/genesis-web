@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 
 
 class Inquerito(models.Model):
@@ -155,6 +156,9 @@ class Inquerito(models.Model):
 
     def __str__(self):
         return self.nome_agg_familiar
+
+    def get_absolute_url(self):
+        return reverse('core:inquerito')
 
 
 class TipoSementeGerminou(models.Model):
