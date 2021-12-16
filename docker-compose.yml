@@ -4,10 +4,15 @@ services:
   app:
     build:
       context: .
+    command: >
+      sh -c "python manage.py wait_for_db &&
+             python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
     ports:
       - 8000:8000
     volumes:
       - ./app:/app
+      - ./data/web:/vol/web
 
     environment:
       - SECRET_KEY=devsecretkey
@@ -25,3 +30,7 @@ services:
       - POSTGRES_DB=genesisdb
       - POSTGRES_USER=genesis
       - POSTGRES_PASSWORD=genesis
+    # volumes:
+    #   - pgdata:/var/lib/postgresql/data/
+    ports:
+      - 5432:5432

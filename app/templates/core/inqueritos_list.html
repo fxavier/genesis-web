@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+
+        <h1>Lista de inqueritos</h1>
+
+    </div>
+</div>
+
+<!-- Table-->
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+
+        {% if object_list %}
+        <table id="list-table" class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Codigo Familia</th>
+                    <th scope="col">Data</th>
+                    <th scope="col">Inquiridor</th>
+                    <th scope="col">Questionario</th>
+                    <th scope="col">Local Entrevista</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                {% for object in object_list %}
+                <tr>
+                    <td>{{ object.codigo_familia }}</td>
+                    <td>{{ object.data_inquerito|date:"d/m/Y" }}</td>
+                    <td>{{ object.nome_inquiridor }}</td>
+                    <td>{{ object.numero_questionario }}</td>
+                    <td>{{ object.local_entrevista }}</td>
+                    <td>
+                        <!-- <a href="{% url 'core:inquerito_detail' object.pk %}">
+                            <i class="fas fa-search-plus"></i>
+                        </a> -->
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        Nenhum registo
+        {% endif %}
+
+    </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+<!-- Page level plugins -->
+<script src="{% static 'vendor/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
+
+<script>
+    $(document).ready(function () {
+        $('#list-table').DataTable(
+            {
+                order: [[0, "desc"]],
+                columns: [
+                    { name: "Date", orderable: true },
+                    {% if list_what != 'Balance' %}
+                            { name: "End", orderable: true },
+            {% endif %}
+                        { name: "Type", orderable: true },
+        { name: "Value", orderable: true },
+        {% if list_what != 'Balance' %}
+    { name: "Repetition", orderable: true },
+    {% endif %}
+    { name: "Comment", orderable: true },
+    { name: "Details", orderable: false },
+                    ]
+                }
+            );
+        })
+</script>
+{% endblock %}
