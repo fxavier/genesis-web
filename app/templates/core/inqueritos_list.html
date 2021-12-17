@@ -18,22 +18,24 @@
         <table id="list-table" class="table">
             <thead>
                 <tr>
+                    <th scope="col">Quest.</th>
                     <th scope="col">Codigo Familia</th>
                     <th scope="col">Data</th>
                     <th scope="col">Inquiridor</th>
-                    <th scope="col">Questionario</th>
                     <th scope="col">Local Entrevista</th>
+                    <th scope="col">Ficha</th>
                     <th scope="col"></th>
                 </tr>
             </thead>
             <tbody id="table-body">
                 {% for object in object_list %}
                 <tr>
+                    <td>{{ object.numero_questionario }}</td>
                     <td>{{ object.codigo_familia }}</td>
                     <td>{{ object.data_inquerito|date:"d/m/Y" }}</td>
                     <td>{{ object.nome_inquiridor }}</td>
-                    <td>{{ object.numero_questionario }}</td>
                     <td>{{ object.local_entrevista }}</td>
+                    <td>{{ object.ficha }}</td>
                     <td>
                     </td>
                 </tr>

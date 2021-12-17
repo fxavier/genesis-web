@@ -1,6 +1,7 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from datetime import date
+from django.db.models import Q, Count
 import gspread
 
 from django.views.generic import ListView
@@ -72,7 +73,7 @@ def refresh_inquerito_data():
             familia_tem_machamba=Constants().get_dicionario().get(
                 str(data.get("data-alocacao_terra-familia_tem_machamba"))),
             machamba_familia=Constants().get_dicionario().get(
-                str(data.get("data-alocacao_terra-tipo_posse"))),
+                str(data.get("data-alocacao_terra-machamba_familia"))),
             tipo_posse=Constants().get_dicionario().get(
                 str(data.get("data-alocacao_terra-tipo_posse"))),
             outro_tipo_posse=Constants().get_dicionario().get(
@@ -338,26 +339,120 @@ def home(request):
     return HttpResponse(get_data_from_spreadsheet("Inquerito_resultados", "Folha1"))
 
 
-class IndexView(ListView):
-    template_name = "core/index.html"
-    context_object_name = "Inquerito_list"
-    model = Inquerito
+# class IndexView(ListView):
+#     template_name = "core/index.html"
+#     context_object_name = "Inquerito_list"
+#     model = Inquerito
 
-    def get_context_data(self, **kwargs):
-        context = super(IndexView, self).get_context_data(**kwargs)
-        context['inquerito'] = Inquerito.objects.all().count()
-        context['inquerito_nampula'] = Inquerito.objects.filter(
-            provincia="Nampula").count()
-        context['inquerito_cabo_delgado'] = Inquerito.objects.filter(
-            provincia="Cabo Delgado").count()
+#     def get_context_data(self, **kwargs):
+#         context = super(IndexView, self).get_context_data(**kwargs)
+#         context['inquerito'] = Inquerito.objects.all().count()
+#         context['inquerito_nampula'] = Inquerito.objects.filter(
+#             provincia="Nampula").count()
+#         context['inquerito_cabo_delgado'] = Inquerito.objects.filter(
+#             provincia="Cabo Delgado").count()
 
-        return context
+#         return context
 
-    def get_queryset(self):
-        return Inquerito.objects.all()
+#     def get_queryset(self):
+#         return Inquerito.objects.all()
+
+
+def index(request):
+    inqueritos = Inquerito.objects.all().count()
+    inquerito_nampula = Inquerito.objects.filter(provincia="Nampula").count()
+    inquerito_cabo_delgado = Inquerito.objects.filter(
+        provincia="Cabo Delgado").count()
+    ficha_verificacao = VerificacaoSementes.objects.all().count()
+    tem_machamba = Inquerito.objects.filter(familia_tem_machamba='Sim').count()
+    nao_tem_machamba = Inquerito.objects.filter(
+        familia_tem_machamba='Nao').count()
+    machamba_familia_sim = Inquerito.objects.filter(
+        machamba_familia="Sim").count()
+    machamba_familia_nao = Inquerito.objects.filter(
+        machamba_familia="Nao").count()
+    emprestada = Inquerito.objects.filter(tipo_posse='Emprestada').count()
+    alugada = Inquerito.objects.filter(tipo_posse='Alugada').count()
+    outro = Inquerito.objects.filter(tipo_posse='Outro').count()
+    comprou = Inquerito.objects.filter(forma_aquisicao='Comprou').count()
+    alugada_f = Inquerito.objects.filter(forma_aquisicao='Alugada').count()
+    cedido_lider = Inquerito.objects.filter(
+        forma_aquisicao='Cedido Pelo Lider').count()
+    cedido_governo = Inquerito.objects.filter(
+        forma_aquisicao='Cedido Pelo Governo').count()
+    outra_forma = Inquerito.objects.filter(forma_aquisicao='Outro').count()
+    tamanho_machamba_05 = Inquerito.objects.filter(
+        tamanho_machamba='0,5 ha').count()
+    tamanho_machamba_15 = Inquerito.objects.filter(
+        tamanho_machamba='1,5 ha').count()
+    outro_tamanho = Inquerito.objects.filter(tamanho_machamba='Outro').count()
+    zona_alta = Inquerito.objects.filter(local_machamba='Zona alta').count()
+    zona_baixa = Inquerito.objects.filter(local_machamba='Zona baixa').count()
+    pantano = Inquerito.objects.filter(local_machamba='Pantano').count()
+    outra_zona = Inquerito.objects.filter(local_machamba='Outro').count()
+    arenoso = Inquerito.objects.filter(caracteristica_solos='Arenoso').count()
+    argiloso = Inquerito.objects.filter(
+        caracteristica_solos='Argiloso').count()
+    areno_argiloso = Inquerito.objects.filter(
+        caracteristica_solos='Areno Argiloso').count()
+    outra_caracteristica = Inquerito.objects.filter(
+        caracteristica_solos='Outro').count()
+    preto = Inquerito.objects.filter(cor_solo='Preto').count()
+    castanho = Inquerito.objects.filter(cor_solo='Castanho').count()
+    outra_cor = Inquerito.objects.filter(cor_solo='Outra').count()
+    uso = Inquerito.objects.filter(historico_uso_solo='Em Uso').count()
+    pousio = Inquerito.objects.filter(historico_uso_solo='Em Pousio').count()
+    virgem = Inquerito.objects.filter(historico_uso_solo='Virgem').count()
+    outro_historico = Inquerito.objects.filter(
+        historico_uso_solo='Outro').count()
+    menor_15 = Inquerito.objects.filter(
+        tempo_gasto_casa_machamba='Menor ou igual a 15 Minutos').count()
+    tempo_15_45 = Inquerito.objects.filter(
+        tempo_gasto_casa_machamba='15 a 45 Minutos').count()
+    tempo_45_1 = Inquerito.objects.filter(
+        tempo_gasto_casa_machamba='45 Minutos a 1 hora"').count()
+    mais_1_hora = Inquerito.objects.filter(
+        tempo_gasto_casa_machamba='Mais que 1 hora').count()
+    outro_tempo = Inquerito.objects.filter(
+        tempo_gasto_casa_machamba='Outro').count()
+
+    context = {'inqueritos': inqueritos, 'inquerito_nampula': inquerito_nampula,
+               'inquerito_cabo_delgado': inquerito_cabo_delgado,
+               'ficha_verificacao': ficha_verificacao, 'tem_machamba': tem_machamba,
+               'nao_tem_machamba': nao_tem_machamba, 'machamba_familia_sim': machamba_familia_sim,
+               'machamba_familia_nao': machamba_familia_nao, 'emprestada': emprestada,
+               'alugada': alugada, 'outro': outro, 'alugada_f': alugada_f, 'cedido_lider': cedido_lider,
+               'cedido_governo': cedido_governo, 'outra_forma': outra_forma, 'comprou': comprou,
+               'tamanho_machamba_05': tamanho_machamba_05, 'tamanho_machamba_15': tamanho_machamba_15,
+               'outro_tamanho': outro_tamanho, 'zona_baixa': zona_baixa, 'zona_alta': zona_alta,
+               'pantano': pantano, 'outra_zona': outra_zona, 'arenoso': arenoso, 'argiloso': argiloso,
+               'areno_argiloso': areno_argiloso, 'outra_caracteristica': outra_caracteristica,
+               'preto': preto, 'castanho': castanho, 'outra_cor': outra_cor, 'uso': uso, 'pousio': pousio,
+               'virgem': virgem, 'outro_historico': outro_historico, 'menor_15': menor_15, 'tempo_15_45': tempo_15_45,
+               'tempo_45_1': tempo_45_1, 'mais_1_hora': mais_1_hora, 'outro_tempo': outro_tempo
+               }
+
+    return render(request, 'core/index.html', context)
 
 
 class InqueritoListView(ListView):
     template_name = "core/inqueritos_list.html"
     queryset = Inquerito.objects.all()
     paginate_by = 10
+
+
+def total_familia_tem_machamba(request):
+    inqueritos = Inquerito.objects.filter(familia_tem_machamba='Sim').count()
+
+    #     if inquerito.familia_tem_machamba == "Sim":
+    #         count_sim += 1
+    #     else:
+    #         count_nao += 1
+    # data.append(count_sim)
+    # data.append(count_nao)
+    # if count_sim:
+    #     labels.append('Familia com Machamba')
+    # elif count_nao:
+    #     labels.append('Familia sem Machamba')
+    print(inqueritos)
+    return JsonResponse({'data': 'Teste'})
